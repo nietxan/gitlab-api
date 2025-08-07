@@ -23,7 +23,7 @@ for id in $(echo "${MR_APPROVALS}" | jq -r '.approved_by[].user.id'); do
     fi
 done
 
-if [ "${APPROVED}" -ge 2 ]; then
+if [ "${APPROVED}" -ge ${APPROVE_COUNT:-2} ]; then
     echo "Merge request has been approved!";
 else
     echo "Please get approval from at least two members. Current: ${APPROVED}";
