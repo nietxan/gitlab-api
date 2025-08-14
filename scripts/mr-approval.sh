@@ -8,7 +8,7 @@ PROJECT=$(
 )
 
 if [ $(echo "${PROJECT}" | jq -r '.only_allow_merge_if_pipeline_succeeds') = "false" ]; then
-    echo "Enable: Settings -> Merge Requests -> Pipelines must succeed"
+    echo "Enable: Settings -> Merge requests -> Pipelines must succeed"
     exit 1
 fi
 
@@ -43,7 +43,7 @@ for id in $(echo "${MR_APPROVALS}" | jq -r '.approved_by[].user.id'); do
     fi
 done
 
-if [ "${APPROVED}" -ge "${APPROVE_COUNT:-2}" ]; then
+if [ "${APPROVED}" -ge 2 ]; then
     echo "Merge request has been approved!";
 else
     echo "Please get approval from at least two members. Current: ${APPROVED}";
