@@ -7,8 +7,10 @@ PROJECT=$(
       --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}"
 )
 
-if [ $(echo "${PROJECT}" | jq -r '.only_allow_merge_if_pipeline_succeeds') = "false" ]; then
+if [ $(echo "${PROJECT}" | jq -r '.only_allow_merge_if_pipeline_succeeds') = "false"] || 
+        [ $(echo "${PROJECT}" | jq -r '.allow_merge_on_skipped_pipeline') = "true" ]; then
     echo "Enable: Settings -> Merge requests -> Pipelines must succeed"
+    echo "Disable: Settings -> Merge requests -> Skipped pipelines are considered successful"
     exit 1
 fi
 
