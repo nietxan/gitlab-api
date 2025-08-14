@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+PROJECT=$(
+    curl "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}" \
+      --silent \
+      --request GET \
+      --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}"
+)
+
+if [ $(echo "${PROJECT}" | jq -r '.only_allow_merge_if_pipeline_succeeds') = "false" ]; then
+    echo "Enable: Settings -> Merge Requests -> Pipelines must succeed"
+    exit 1
+fi
+
 MR_APPROVALS=$(\
     curl "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/merge_requests/${CI_MERGE_REQUEST_IID}/approvals" \
       --silent \
