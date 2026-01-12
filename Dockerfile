@@ -1,5 +1,5 @@
 FROM alpine:3.22
 
-RUN apk add --update --no-cache curl jq bash
+RUN apk add --update --no-cache curl jq bash grep
 
 COPY scripts/ /scripts/
