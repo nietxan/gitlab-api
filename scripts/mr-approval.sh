@@ -38,17 +38,22 @@ for id in $(echo "${MR_APPROVALS}" | jq -r '.approved_by[].user.id'); do
           --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}" \
     )
 
+    MR_AUTHOR=$(echo "${MR}" | jq -r .author.id)
+
+    if [ "${id}" = "${MR_AUTHOR}" ]; then
+        APPROVED=$((APPROVED + 1))
+    fi
+
     if [ -n "${USER_LIST}" ]; then
         USER_NAME=$(echo "${USER}" | jq -r '.username')
 
-        if echo "${USER_LIST}" | grep -Fqx "${USER_NAME}"; then
+        if [[ " ${USER_LIST} " =~ " ${USER} " ]] then
             APPROVED=$((APPROVED + 1))
         fi
     else
-        MR_AUTHOR=$(echo "${MR}" | jq -r .author.id)
         ACCESS_LEVEL=$(echo "${USER}" | jq -r '.access_level // 0')
 
-        if [ "${ACCESS_LEVEL}" -ge 40 ] || [ "${id}" = "${MR_AUTHOR}" ]; then
+        if [ "${ACCESS_LEVEL}" -ge 40 ]; then
             APPROVED=$((APPROVED + 1))
         fi
     fi
