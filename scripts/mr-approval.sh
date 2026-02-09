@@ -42,6 +42,7 @@ for id in $(echo "${MR_APPROVALS}" | jq -r '.approved_by[].user.id'); do
 
     if [ "${id}" = "${MR_AUTHOR}" ]; then
         APPROVED=$((APPROVED + 1))
+        break
     fi
 
     if [ -n "${USER_LIST}" ]; then
