@@ -36,7 +36,7 @@ def find_conflicts(root: Path):
 
 
 def main():
-    repo_root = Path(__file__).resolve().parents[1]
+    repo_root = Path.cwd()
     app_root = repo_root / "app"
     conflicts = find_conflicts(app_root)
     if not conflicts:
