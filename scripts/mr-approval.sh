@@ -28,41 +28,34 @@ MR=$(
       --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}"
 )
 
-APPROVED=0
+MR_AUTHOR_ID=$(echo "${MR}" | jq -r .author.id)
+MAINTAINER_APPROVALS=0
 
 for id in $(echo "${MR_APPROVALS}" | jq -r '.approved_by[].user.id'); do
-    USER=$(\
-        curl "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/members/all/${id}" \
-          --silent \
-          --request GET \
-          --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}" \
-    )
-
-    MR_AUTHOR=$(echo "${MR}" | jq -r .author.id)
-
-    if [ "${id}" = "${MR_AUTHOR}" ]; then
-        APPROVED=$((APPROVED + 1))
+    if [ "${id}" = "${MR_AUTHOR_ID}" ]; then
+        echo "Author approval found; skipping."
         continue
     fi
 
-    if [ -n "${USER_LIST}" ]; then
-        USER_NAME=$(echo "${USER}" | jq -r '.username')
+    USER_INFO=$(
+        curl "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/members/all/${id}" \
+          --silent \
+          --request GET \
+          --header "PRIVATE-TOKEN: ${GITLAB_ACCESS_TOKEN}"
+    )
+    
+    ACCESS_LEVEL=$(echo "${USER_INFO}" | jq -r '.access_level // 0')
 
-        if echo "${USER_LIST}" | grep -Fqx "${USER_NAME}"; then
-            APPROVED=$((APPROVED + 1))
-        fi
-    else
-        ACCESS_LEVEL=$(echo "${USER}" | jq -r '.access_level // 0')
-
-        if [ "${ACCESS_LEVEL}" -ge 40 ]; then
-            APPROVED=$((APPROVED + 1))
-        fi
+    if [ "${ACCESS_LEVEL}" -ge 40 ]; then
+        MAINTAINER_APPROVALS=$((MAINTAINER_APPROVALS + 1))
+        APPROVER_NAME=$(echo "${USER_INFO}" | jq -r '.username')
+        echo "Valid approval from Maintainer: ${APPROVER_NAME}"
     fi
 done
 
-if [ "${APPROVED}" -ge 2 ]; then
-    echo "Merge request has been approved!";
+if [ "${MAINTAINER_APPROVALS}" -ge 1 ]; then
+    echo "Success: MR has been approved by at least one Maintainer (excluding author).";
 else
-    echo "Please get approval from at least two members. Current: ${APPROVED}";
+    echo "Error: This MR requires approval from at least one Maintainer other than the author.";
     exit 1;
 fi
