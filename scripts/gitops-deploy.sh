@@ -10,7 +10,7 @@ GITOPS_USER_EMAIL="${GITOPS_USER_EMAIL:-argonaut@example.com}"
 git clone "https://argonaut:${GITOPS_TOKEN}@${GITOPS_HOST}/${GITOPS_REPO}.git"
 cd "$(basename "$GITOPS_REPO")"
 
-IMAGE_FILE="services/${CI_PROJECT_NAME}/dev/image.yaml"
+IMAGE_FILE="services/${CI_PROJECT_NAME}/image.yaml"
 if [ ! -f "$IMAGE_FILE" ]; then
   echo "[ERROR] $IMAGE_FILE not found in gitops"
   exit 1
