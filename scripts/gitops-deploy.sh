@@ -24,13 +24,15 @@ fi
 git config user.email "$GITOPS_USER_EMAIL"
 git config user.name "$GITOPS_USER_NAME"
 
-yq e '.image.tag = strenv(CI_COMMIT_SHORT_SHA)' -i "$IMAGE_FILE"
+export DEPLOY_TAG="${IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}"
+
+yq e '.image.tag = strenv(DEPLOY_TAG)' -i "$IMAGE_FILE"
 
 if git diff --quiet -- "$IMAGE_FILE"; then
-  echo "[INFO] tag already $CI_COMMIT_SHORT_SHA, nothing to push"
+  echo "[INFO] tag already $DEPLOY_TAG, nothing to push"
   exit 0
 fi
 
 git add "$IMAGE_FILE"
-git commit -m "deploy(${CI_PROJECT_NAME}) - ${CI_COMMIT_SHORT_SHA}"
+git commit -m "deploy(${CI_PROJECT_NAME}) - ${DEPLOY_TAG}"
 git push origin main
