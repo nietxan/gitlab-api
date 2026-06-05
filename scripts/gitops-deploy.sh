@@ -10,7 +10,7 @@ GITOPS_USER_EMAIL="${GITOPS_USER_EMAIL:-argonaut@example.com}"
 git clone "https://argonaut:${GITOPS_TOKEN}@${GITOPS_HOST}/${GITOPS_REPO}.git"
 cd "$(basename "$GITOPS_REPO")"
 
-if [[ -n "${ENVIRONMENT}" ]]; then
+if [[ -n "${ENVIRONMENT:-}" ]]; then
   IMAGE_FILE="${CI_PROJECT_NAME}/${ENVIRONMENT}/image.yaml"
 else
   IMAGE_FILE="${CI_PROJECT_NAME}/image.yaml"
@@ -24,7 +24,7 @@ fi
 git config user.email "$GITOPS_USER_EMAIL"
 git config user.name "$GITOPS_USER_NAME"
 
-export DEPLOY_TAG="${IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}"
+export DEPLOY_TAG="${IMAGE_TAG:-${CI_COMMIT_SHORT_SHA}}"
 
 yq e '.image.tag = strenv(DEPLOY_TAG)' -i "$IMAGE_FILE"
 
