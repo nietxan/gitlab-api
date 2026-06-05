@@ -11,9 +11,9 @@ git clone "https://argonaut:${GITOPS_TOKEN}@${GITOPS_HOST}/${GITOPS_REPO}.git"
 cd "$(basename "$GITOPS_REPO")"
 
 if [[ -n "${ENVIRONMENT}" ]]; then
-  IMAGE_FILE="services/${CI_PROJECT_NAME}/${ENVIRONMENT}/image.yaml"
+  IMAGE_FILE="${CI_PROJECT_NAME}/${ENVIRONMENT}/image.yaml"
 else
-  IMAGE_FILE="services/${CI_PROJECT_NAME}/image.yaml"
+  IMAGE_FILE="${CI_PROJECT_NAME}/image.yaml"
 fi
 
 if [ ! -f "$IMAGE_FILE" ]; then
